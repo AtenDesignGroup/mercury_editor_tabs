@@ -1,0 +1,24 @@
+{#
+/**
+ * @file
+ * Template for a generic layout.
+ */
+#}
+{%
+  set classes = [
+    'layout',
+    'l--' ~ layout.id|clean_class,
+  ]
+%}
+{% if content %}
+	<div{{attributes.addClass(classes)}}>
+		<div class="l--padded">
+			{% if content.primary %}
+				<div {{ region_attributes.primary.addClass('l__region', 'l__primary') }}>
+					{{ content.primary }}
+				</div>
+			{% endif %}
+		</div>
+	</div>
+{% endif %}
+

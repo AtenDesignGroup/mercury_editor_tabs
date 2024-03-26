@@ -1,0 +1,7 @@
+name: Mercury Editor Tabs
+type: module
+description: 'Adds tabs to the Mercury Editor.'
+core_version_requirement: ^10
+package: 'Mercury Editor'
+dependencies:
+  - mercury_editor:mercury_editor
