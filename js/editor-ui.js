@@ -44,6 +44,7 @@
       range.selectNode(el.childNodes[0]);
       sel.removeAllRanges();
       sel.addRange(range);
+      el.focus();
     }
   }
 
@@ -64,8 +65,18 @@
           }
         });
       });
-      once ('me-tabs-editor-ui', '.lp-builder .c-tabs-group__menu').forEach((el) => {
+      once('me-tabs-editor-ui', '.lp-builder .c-tabs-group__menu').forEach((el) => {
         el.insertAdjacentHTML('beforeend', `<li class="me-tabs--new-tab"><button href="">Add Tab</a></button>`);
+        el.querySelector('.me-tabs--new-tab').addEventListener('click', (e) => {
+          const layoutId = el.closest('[data-lpb-id]').getAttribute('data-lpb-id');
+          const componentUuid = el.closest('[data-type="tabs"][data-uuid]').getAttribute('data-uuid');
+          Drupal.ajax({
+            url: `${drupalSettings.path.baseUrl}${drupalSettings.path.pathPrefix}mercury-editor-tabs/${layoutId}/add-tab/${componentUuid}`,
+            submit: {
+              add: layoutId
+            }
+          }).execute();
+        });
       });
       // once('me-tabs-edit-btns', '.me-tabs-btn--edit').forEach((el) => {
       //   el.addEventListener('click', (e) => {

@@ -20,3 +20,15 @@ mercury_editor_tabs.remove_tab:
         layout_paragraphs_layout_tempstore: TRUE
   requirements:
     _layout_paragraphs_builder_access: 'TRUE'
+
+mercury_editor_tabs.add_tab:
+  path: '/mercury-editor-tabs/{layout_paragraphs_layout}/add-tab/{component_uuid}'
+  defaults:
+    _controller: '\Drupal\mercury_editor_tabs\Controller\TabsController::addTab'
+  options:
+    parameters:
+      layout_paragraphs_layout:
+        layout_paragraphs_layout_tempstore: TRUE
+  requirements:
+    _layout_paragraphs_builder_access: 'TRUE'
+
