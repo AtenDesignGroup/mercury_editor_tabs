@@ -4,21 +4,45 @@
  * Template for a generic layout.
  */
 #}
-{%
-  set classes = [
-    'layout',
-    'l--' ~ layout.id|clean_class,
-  ]
-%}
-{% if content %}
-	<div{{attributes.addClass(classes)}}>
-		<div class="l--padded">
-			{% if content.primary %}
-				<div {{ region_attributes.primary.addClass('l__region', 'l__primary') }}>
-					{{ content.primary }}
+{% set classes = classes|default([])|merge([
+  'layout',
+  'l--' ~ layout.id|clean_class,
+  'c-tabs-group',
+]) %}
+
+{% macro tabButton(title, controls, isExpanded) %}
+	{% set state = isExpanded ? 'true' : 'false' %}
+
+	<button class="c-tabs-group__tab-button" aria-expanded="{{ state }}" aria-controls="{{ controls }}">
+		{{ title }}
+	</button>
+{% endmacro %}
+
+<section {{ attributes.addClass(classes) }}>
+	<nav class="c-tabs-group__tabs">
+		<ul class="c-tabs-group__menu">
+			{% for tab in tabs %}
+				{% set id = 'tab-content-' ~ loop.index %}
+				<li class="c-tabs-group__menu-item">
+					{{ _self.tabButton(tab.title, id, loop.first) }}
+				</li>
+			{% endfor %}
+		</ul>
+	</nav>
+
+	<div class="c-tabs-group__inner">
+		{% for tab in tabs %}
+			{% set id = 'tab-content-' ~ loop.index %}
+      <article class='c-tabs-group__tab' id="{{ id }}" aria-hidden="{{ loop.first ? 'false' : 'true' }}" >
+				<h3 class="c-tabs-group__tab-title">
+					{{ tab.title }}
+				</h3>
+        <div {{ region_attributes[tab.region].addClass('c-tabs-group__tab-content', 'l__region', 'l__' ~ tab.region ) }}>
+					{{ tab.content }}
 				</div>
-			{% endif %}
-		</div>
+			</article>
+		{% endfor %}
 	</div>
-{% endif %}
+</section>
+
 

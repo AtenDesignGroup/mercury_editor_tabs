@@ -1,0 +1,5 @@
+editor_ui:
+  js:
+    js/editor-ui.js: {}
+  dependencies:
+    - core/once

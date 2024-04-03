@@ -1,0 +1,22 @@
+
+mercury_editor_tabs.edit_title:
+  path: '/mercury-editor-tabs/{layout_paragraphs_layout}/edit-title/{component_uuid}/{tab_id}'
+  defaults:
+    _controller: '\Drupal\mercury_editor_tabs\Controller\TabsController::editTabTitle'
+  options:
+    parameters:
+      layout_paragraphs_layout:
+        layout_paragraphs_layout_tempstore: TRUE
+  requirements:
+    _layout_paragraphs_builder_access: 'TRUE'
+
+mercury_editor_tabs.remove_tab:
+  path: '/mercury-editor-tabs/{layout_paragraphs_layout}/remove-tab/{component_uuid}/{tab_id}'
+  defaults:
+    _controller: '\Drupal\mercury_editor_tabs\Controller\TabsController::removeTab'
+  options:
+    parameters:
+      layout_paragraphs_layout:
+        layout_paragraphs_layout_tempstore: TRUE
+  requirements:
+    _layout_paragraphs_builder_access: 'TRUE'

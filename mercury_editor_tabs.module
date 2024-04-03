@@ -1,0 +1,39 @@
+<?php
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Render\Element;
+use Drupal\Core\Template\Attribute;
+use Drupal\layout_paragraphs\LayoutParagraphsSection;
+use Drupal\paragraphs\Entity\Paragraph;
+
+/**
+ * Implements hook_preprocess_hook().
+ */
+function mercury_editor_tabs_preprocess_tabs(&$vars) {
+  $tabs = [];
+  $labels = $vars['layout']->getRegions();
+  $settings = $vars['settings'];
+  if (!empty($settings['layout_paragraphs_section'])) {
+    /** @var LayoutParagraphsSection */
+    $layout_section = $settings['layout_paragraphs_section'];
+    $paragraph = $layout_section->getEntity();
+    if ($paragraph->access('update')) {
+      $vars['#attached']['library'][] = 'mercury_editor_tabs/editor_ui';
+    }
+  }
+  foreach (Element::children($vars['content']) as $region) {
+    $label = $settings['tabs'][$region]['detail']['label'];
+    $tabs[$region] = [
+      'id' => $region,
+      'title' => $label,
+      'title_attributes' => new Attribute([
+        'data-region' => $region,
+      ]),
+      'content' => $vars['content'][$region],
+      'region' => $region,
+      'attributes' => $vars['region_attributes'][$region],
+    ];
+  }
+  $vars['tabs'] = $tabs;
+  // $vars['#attached']['library'][] = 'yourmodule/layout_tabs';
+}

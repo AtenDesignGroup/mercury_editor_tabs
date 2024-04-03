@@ -1,15 +1,23 @@
 tabs:
   label: 'Tabs'
   template: templates/tabs
-  class: '\Drupal\style_options\Plugin\Layout\StyleOptionLayoutPlugin'
+  class: '\Drupal\mercury_editor_tabs\Plugin\Layout\Tabs'
   category: 'Tabs'
   library: mercury_editor_tabs/layout
-  default_region: primary
+  default_region: tab1
   icon_map:
-    - [primary]
+    - [title]
+    - [tab1, tab2, tab3]
+    - [tab1_content]
+    - [tab2_content]
+    - [tab3_content]
   regions:
-    primary:
-      label: Tabs
+    title:
+      label: Title
+    tab1:
+      label: Tab 1
+    tab2:
+      label: Tab 2
 
 tab:
   label: 'Tab'
