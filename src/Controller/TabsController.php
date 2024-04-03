@@ -108,8 +108,7 @@ class TabsController extends ControllerBase {
     return new AjaxResponse();
   }
 
-
-  public function addTab(Request $request, LayoutParagraphsLayout $layout_paragraphs_layout, string $component_uuid) {
+  public function addTab(LayoutParagraphsLayout $layout_paragraphs_layout, string $component_uuid) {
     $component = $layout_paragraphs_layout->getComponentByUuid($component_uuid);
     $paragraph = $component->getEntity();
     $behavior_settings = $paragraph->getAllBehaviorSettings();
@@ -143,6 +142,42 @@ class TabsController extends ControllerBase {
       $response->addCommand(new LayoutParagraphsEventCommand($this->layoutParagraphsLayout, $component_uuid, 'component:update'));
       return $response;
 
+    }
+    return new AjaxResponse();
+  }
+
+  public function reorderTabs(Request $request, LayoutParagraphsLayout $layout_paragraphs_layout, string $component_uuid) {
+    $component = $layout_paragraphs_layout->getComponentByUuid($component_uuid);
+    $paragraph = $component->getEntity();
+    $behavior_settings = $paragraph->getAllBehaviorSettings();
+    $order = Json::decode($request->request->get('order'));
+    if (!empty($behavior_settings['layout_paragraphs']['config']['tabs']) && !empty($order)) {
+      $tabs = $behavior_settings['layout_paragraphs']['config']['tabs'];
+      $new_tabs = [];
+      foreach ($order as $tab_id) {
+        if (!empty($tabs[$tab_id])) {
+          $new_tabs[$tab_id] = $tabs[$tab_id];
+        }
+      }
+      $behavior_settings['layout_paragraphs']['config']['tabs'] = $new_tabs;
+      $paragraph->setAllBehaviorSettings($behavior_settings);
+      $paragraph->setNeedsSave(TRUE);
+      $layout_paragraphs_layout->setComponent($paragraph);
+      $this->tempstore->set($layout_paragraphs_layout);
+
+      $this->setLayoutParagraphsLayout($layout_paragraphs_layout);
+      $response = new AjaxResponse();
+      if ($this->needsRefresh()) {
+        return $this->refreshLayout($response);
+      }
+      $rendered_item = [
+        '#type' => 'layout_paragraphs_builder',
+        '#layout_paragraphs_layout' => $this->layoutParagraphsLayout,
+        '#uuid' => $component_uuid,
+      ];
+      $response->addCommand(new ReplaceCommand("[data-uuid={$component_uuid}]", $rendered_item));
+      $response->addCommand(new LayoutParagraphsEventCommand($this->layoutParagraphsLayout, $component_uuid, 'component:update'));
+      return $response;
     }
     return new AjaxResponse();
   }

@@ -1,5 +1,10 @@
 editor_ui:
   js:
     js/editor-ui.js: {}
+  css:
+    component:
+      css/editor-ui.css: {}
   dependencies:
     - core/once
+    - core/jquery
+    - layout_paragraphs/dragula

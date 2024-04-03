@@ -32,3 +32,14 @@ mercury_editor_tabs.add_tab:
   requirements:
     _layout_paragraphs_builder_access: 'TRUE'
 
+mercury_editor_tabs.reorder_tabs:
+  path: '/mercury-editor-tabs/{layout_paragraphs_layout}/reorder/{component_uuid}'
+  defaults:
+    _controller: '\Drupal\mercury_editor_tabs\Controller\TabsController::reorderTabs'
+  options:
+    parameters:
+      layout_paragraphs_layout:
+        layout_paragraphs_layout_tempstore: TRUE
+  requirements:
+    _layout_paragraphs_builder_access: 'TRUE'
+
