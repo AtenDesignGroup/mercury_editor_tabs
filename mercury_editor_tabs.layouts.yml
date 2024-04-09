@@ -2,15 +2,16 @@ tabs:
   label: 'Tabs'
   template: templates/tabs
   class: '\Drupal\mercury_editor_tabs\Plugin\Layout\Tabs'
-  category: 'Tabs'
+  category: 'Tabs / Accordions'
   library: mercury_editor_tabs/layout
   default_region: tab1
   icon_map:
-    - [title]
     - [tab1, tab2, tab3]
     - [tab1_content]
-    - [tab2_content]
-    - [tab3_content]
+    - [tab1_content]
+    - [tab1_content]
+    - [tab1_content]
+    - [tab1_content]
   regions:
     title:
       label: Title
@@ -19,15 +20,24 @@ tabs:
     tab2:
       label: Tab 2
 
-tab:
-  label: 'Tab'
-  template: templates/tab
-  class: '\Drupal\style_options\Plugin\Layout\StyleOptionLayoutPlugin'
-  category: 'Tabs'
+me_accordion:
+  label: 'Accordion'
+  template: templates/me-accordion
+  class: '\Drupal\mercury_editor_tabs\Plugin\Layout\Tabs'
+  category: 'Tabs / Accordions'
   library: mercury_editor_tabs/layout
-  default_region: primary
+  default_region: tab1
   icon_map:
-    - [primary]
+    - [tab1_content]
+    - [tab2_content]
+    - [tab2_content]
+    - [tab3_content]
+    - [tab4_content]
+    - [tab4_content]
   regions:
-    primary:
-      label: Tab
+    title:
+      label: Title
+    tab1:
+      label: Tab 1
+    tab2:
+      label: Tab 2
