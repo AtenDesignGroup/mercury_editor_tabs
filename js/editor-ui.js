@@ -95,7 +95,7 @@
 
   Drupal.behaviors.mercuryEditorTabsEditorUi = {
     attach: function(context) {
-      once('me-tabs-editor-ui', '[data-me-accordion-tabs-label-group]').forEach((labelGroup) => {
+      once('me-tabs-editor-ui', '[data-lpb-id] [data-me-accordion-tabs-label-group]').forEach((labelGroup) => {
         const layout_id = labelGroup.closest('[data-layout]').getAttribute('data-layout');
         const labels = [...labelGroup.querySelectorAll('[data-me-accordion-tabs-region-label]')]
           .filter((label) => label.closest('[data-me-accordion-tabs-label-group]') === labelGroup);
