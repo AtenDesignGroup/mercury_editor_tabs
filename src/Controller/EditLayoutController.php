@@ -3,7 +3,6 @@
 namespace Drupal\mercury_editor_tabs\Controller;
 
 use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\RemoveCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Ajax\AjaxHelperTrait;
 use Drupal\Component\Serialization\Json;
@@ -16,11 +15,9 @@ use Drupal\layout_paragraphs\LayoutParagraphsLayoutRefreshTrait;
 use Drupal\layout_paragraphs\LayoutParagraphsLayoutTempstoreRepository;
 
 /**
- * Class ReorderController.
- *
- * Reorders the components of a Layout Paragraphs Layout.
+ * Defines a EditLayoutController for editing tabs and accordions.
  */
-class TabsController extends ControllerBase {
+class EditLayoutController extends ControllerBase {
 
   use AjaxHelperTrait;
   use LayoutParagraphsLayoutRefreshTrait;
@@ -49,163 +46,188 @@ class TabsController extends ControllerBase {
   }
 
   /**
-   * Edits a tab title.
+   * Edits a group title.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
-   *   The request object containing a "tab_uuid" and "tab_title" POST parameters.
+   *   The request object containing a "uuid" and "title" POST parameters.
    * @param \Drupal\layout_paragraphs\LayoutParagraphsLayout $layout_paragraphs_layout
    *   The Layout Paragraphs Layout object.
+   * @param string $component_uuid
+   *   The component UUID.
+   * @param string $region_id
+   *   The group ID.
    *
    * @return \Drupal\Core\Ajax\AjaxResponse
    *   The Ajax response.
    */
-  public function editTabTitle(Request $request, LayoutParagraphsLayout $layout_paragraphs_layout, string $component_uuid, string $tab_id) {
+  public function editLabel(
+    Request $request,
+    LayoutParagraphsLayout $layout_paragraphs_layout,
+    string $component_uuid,
+    string $region_id
+  ) {
     $this->setLayoutParagraphsLayout($layout_paragraphs_layout);
     $component = $layout_paragraphs_layout->getComponentByUuid($component_uuid);
     $paragraph = $component->getEntity();
     $behavior_settings = $paragraph->getAllBehaviorSettings();
-    if (!empty($behavior_settings['layout_paragraphs']['config']['tabs'][$tab_id]) && $request->request->get('value')) {
-      $behavior_settings['layout_paragraphs']['config']['tabs'][$tab_id]['detail']['label'] = $request->request->get('value');
-      $paragraph->setAllBehaviorSettings($behavior_settings);
-      $paragraph->setNeedsSave(TRUE);
-      $layout_paragraphs_layout->setComponent($paragraph);
-      $this->tempstore->set($layout_paragraphs_layout);
-    }
-    return new AjaxResponse();
-  }
-
-  public function removeTab(Request $request, LayoutParagraphsLayout $layout_paragraphs_layout, string $component_uuid, string $tab_id) {
-    $component = $layout_paragraphs_layout->getComponentByUuid($component_uuid);
-    $paragraph = $component->getEntity();
-    $behavior_settings = $paragraph->getAllBehaviorSettings();
-    if (!empty($behavior_settings['layout_paragraphs']['config']['tabs'][$tab_id]) && $request->request->get('delete') == $component_uuid) {
-      $section = $layout_paragraphs_layout->getLayoutSection($paragraph);
-      $components = $section->getComponentsForRegion($tab_id) ?? [];
-      foreach ($components as $component) {
-        $layout_paragraphs_layout->deleteComponent($component->getEntity()->uuid(), TRUE);
-      }
-      unset($behavior_settings['layout_paragraphs']['config']['tabs'][$tab_id]);
-      $paragraph->setAllBehaviorSettings($behavior_settings);
-      $paragraph->setNeedsSave(TRUE);
-      $layout_paragraphs_layout->setComponent($paragraph);
-      $this->tempstore->set($layout_paragraphs_layout);
-
-      $this->setLayoutParagraphsLayout($layout_paragraphs_layout);
-      $response = new AjaxResponse();
-      if ($this->needsRefresh()) {
-        return $this->refreshLayout($response);
-      }
-      $rendered_item = [
-        '#type' => 'layout_paragraphs_builder',
-        '#layout_paragraphs_layout' => $this->layoutParagraphsLayout,
-        '#uuid' => $component_uuid,
-      ];
-      $response->addCommand(new ReplaceCommand("[data-uuid={$component_uuid}]", $rendered_item));
-      $response->addCommand(new LayoutParagraphsEventCommand($this->layoutParagraphsLayout, $component_uuid, 'component:update'));
-      return $response;
-
-    }
-    return new AjaxResponse();
-  }
-
-  public function addTab(LayoutParagraphsLayout $layout_paragraphs_layout, string $component_uuid) {
-    $component = $layout_paragraphs_layout->getComponentByUuid($component_uuid);
-    $paragraph = $component->getEntity();
-    $behavior_settings = $paragraph->getAllBehaviorSettings();
-    if (!empty($behavior_settings['layout_paragraphs']['config']['tabs'])) {
-      $tab_id = 1;
-      $label = 'Tab ' . count($behavior_settings['layout_paragraphs']['config']['tabs']) + 1;
-      while (!empty($behavior_settings['layout_paragraphs']['config']['tabs']['tab_' . $tab_id])) {
-        $tab_id++;
-      }
-      $behavior_settings['layout_paragraphs']['config']['tabs']['tab_' . $tab_id] = [
-        'detail' => [
-          'label' => $label,
-        ],
+    if (!empty($behavior_settings['layout_paragraphs']['config']['layout_regions'][$region_id]) && $request->request->get('label')) {
+      $behavior_settings['layout_paragraphs']['config']['layout_regions'][$region_id] = [
+        'label' => $request->request->get('label'),
       ];
       $paragraph->setAllBehaviorSettings($behavior_settings);
       $paragraph->setNeedsSave(TRUE);
       $layout_paragraphs_layout->setComponent($paragraph);
       $this->tempstore->set($layout_paragraphs_layout);
-
-      $this->setLayoutParagraphsLayout($layout_paragraphs_layout);
-      $response = new AjaxResponse();
-      if ($this->needsRefresh()) {
-        return $this->refreshLayout($response);
-      }
-      $rendered_item = [
-        '#type' => 'layout_paragraphs_builder',
-        '#layout_paragraphs_layout' => $this->layoutParagraphsLayout,
-        '#uuid' => $component_uuid,
-      ];
-      $response->addCommand(new ReplaceCommand("[data-uuid={$component_uuid}]", $rendered_item));
-      $response->addCommand(new LayoutParagraphsEventCommand($this->layoutParagraphsLayout, $component_uuid, 'component:update'));
-      return $response;
-
-    }
-    return new AjaxResponse();
-  }
-
-  public function reorderTabs(Request $request, LayoutParagraphsLayout $layout_paragraphs_layout, string $component_uuid) {
-    $component = $layout_paragraphs_layout->getComponentByUuid($component_uuid);
-    $paragraph = $component->getEntity();
-    $behavior_settings = $paragraph->getAllBehaviorSettings();
-    $order = Json::decode($request->request->get('order'));
-    if (!empty($behavior_settings['layout_paragraphs']['config']['tabs']) && !empty($order)) {
-      $tabs = $behavior_settings['layout_paragraphs']['config']['tabs'];
-      $new_tabs = [];
-      foreach ($order as $tab_id) {
-        if (!empty($tabs[$tab_id])) {
-          $new_tabs[$tab_id] = $tabs[$tab_id];
-        }
-      }
-      $behavior_settings['layout_paragraphs']['config']['tabs'] = $new_tabs;
-      $paragraph->setAllBehaviorSettings($behavior_settings);
-      $paragraph->setNeedsSave(TRUE);
-      $layout_paragraphs_layout->setComponent($paragraph);
-      $this->tempstore->set($layout_paragraphs_layout);
-
-      $this->setLayoutParagraphsLayout($layout_paragraphs_layout);
-      $response = new AjaxResponse();
-      if ($this->needsRefresh()) {
-        return $this->refreshLayout($response);
-      }
-      $rendered_item = [
-        '#type' => 'layout_paragraphs_builder',
-        '#layout_paragraphs_layout' => $this->layoutParagraphsLayout,
-        '#uuid' => $component_uuid,
-      ];
-      $response->addCommand(new ReplaceCommand("[data-uuid={$component_uuid}]", $rendered_item));
-      $response->addCommand(new LayoutParagraphsEventCommand($this->layoutParagraphsLayout, $component_uuid, 'component:update'));
-      return $response;
     }
     return new AjaxResponse();
   }
 
   /**
-   * Reorders a Layout Paragraphs Layout's components.
-   *
-   * Expects an two-dimmensional array of components in the "components" POST
-   * parameter with key/value pairs for "uuid", "parent_uuid", and "region".
+   * Removes a region from a the layout.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
-   *   The request object containing a "components" POST parameter.
+   *   The request object.
    * @param \Drupal\layout_paragraphs\LayoutParagraphsLayout $layout_paragraphs_layout
    *   The Layout Paragraphs Layout object.
+   * @param string $component_uuid
+   *   The component UUID.
+   * @param string $region_id
+   *   The region ID.
+   *
+   * @return \Psr\Http\Message\ResponseInterface
+   *   The response.
    */
-  public function build(Request $request, LayoutParagraphsLayout $layout_paragraphs_layout) {
-    if ($ordered_components = Json::decode($request->request->get("components"))) {
-      $layout_paragraphs_layout->reorderComponents($ordered_components);
+  public function removeRegion(Request $request, LayoutParagraphsLayout $layout_paragraphs_layout, string $component_uuid, string $region_id) {
+    $component = $layout_paragraphs_layout->getComponentByUuid($component_uuid);
+    $paragraph = $component->getEntity();
+    $behavior_settings = $paragraph->getAllBehaviorSettings();
+    if (!empty($behavior_settings['layout_paragraphs']['config']['layout_regions'][$region_id]) && $request->request->get('delete') == $component_uuid) {
+      $section = $layout_paragraphs_layout->getLayoutSection($paragraph);
+      $components = $section->getComponentsForRegion($region_id) ?? [];
+      foreach ($components as $component) {
+        $layout_paragraphs_layout->deleteComponent($component->getEntity()->uuid(), TRUE);
+      }
+      unset($behavior_settings['layout_paragraphs']['config']['layout_regions'][$region_id]);
+      $paragraph->setAllBehaviorSettings($behavior_settings);
+      $paragraph->setNeedsSave(TRUE);
+      $layout_paragraphs_layout->setComponent($paragraph);
       $this->tempstore->set($layout_paragraphs_layout);
+
+      $this->setLayoutParagraphsLayout($layout_paragraphs_layout);
+      $response = new AjaxResponse();
+      if ($this->needsRefresh()) {
+        return $this->refreshLayout($response);
+      }
+      $rendered_item = [
+        '#type' => 'layout_paragraphs_builder',
+        '#layout_paragraphs_layout' => $this->layoutParagraphsLayout,
+        '#uuid' => $component_uuid,
+      ];
+      $response->addCommand(new ReplaceCommand("[data-uuid={$component_uuid}]", $rendered_item));
+      $response->addCommand(new LayoutParagraphsEventCommand($this->layoutParagraphsLayout, $component_uuid, 'component:update'));
+      return $response;
+
     }
-    // If invoked via ajax, no need to re-render the builder UI.
-    if ($this->isAjax()) {
-      return new AjaxResponse();
+    return new AjaxResponse();
+  }
+
+  /**
+   * Adds a region to the layout.
+   *
+   * @param \Drupal\layout_paragraphs\LayoutParagraphsLayout $layout_paragraphs_layout
+   *   The Layout Paragraphs Layout object.
+   * @param string $component_uuid
+   *   The component UUID.
+   *
+   * @return \Psr\Http\Message\ResponseInterface
+   *   The response.
+   */
+  public function addRegion(LayoutParagraphsLayout $layout_paragraphs_layout, string $component_uuid) {
+    $component = $layout_paragraphs_layout->getComponentByUuid($component_uuid);
+    $paragraph = $component->getEntity();
+    $behavior_settings = $paragraph->getAllBehaviorSettings();
+    if (!empty($behavior_settings['layout_paragraphs']['config']['layout_regions'])) {
+      $region_id = 1;
+      $label_prefix = $behavior_settings['layout_paragraphs']['layout'] == 'me_tabs'
+        ? 'Tab '
+        : 'Accordion Item ';
+      $label = $label_prefix . count($behavior_settings['layout_paragraphs']['config']['layout_regions']) + 1;
+      while (!empty($behavior_settings['layout_paragraphs']['config']['layout_regions']['region_' . $region_id])) {
+        $region_id++;
+      }
+      $behavior_settings['layout_paragraphs']['config']['layout_regions']['region_' . $region_id] = [
+        'label' => $label,
+      ];
+      $paragraph->setAllBehaviorSettings($behavior_settings);
+      $paragraph->setNeedsSave(TRUE);
+      $layout_paragraphs_layout->setComponent($paragraph);
+      $this->tempstore->set($layout_paragraphs_layout);
+
+      $this->setLayoutParagraphsLayout($layout_paragraphs_layout);
+      $response = new AjaxResponse();
+      if ($this->needsRefresh()) {
+        return $this->refreshLayout($response);
+      }
+      $rendered_item = [
+        '#type' => 'layout_paragraphs_builder',
+        '#layout_paragraphs_layout' => $this->layoutParagraphsLayout,
+        '#uuid' => $component_uuid,
+      ];
+      $response->addCommand(new ReplaceCommand("[data-uuid={$component_uuid}]", $rendered_item));
+      $response->addCommand(new LayoutParagraphsEventCommand($this->layoutParagraphsLayout, $component_uuid, 'component:update'));
+      return $response;
+
     }
-    return [
-      '#type' => 'layout_paragraphs_builder',
-      '#layout_paragraphs_layout' => $layout_paragraphs_layout,
-    ];
+    return new AjaxResponse();
+  }
+
+  /**
+   * Reorders regions in a layout.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request object.
+   * @param \Drupal\layout_paragraphs\LayoutParagraphsLayout $layout_paragraphs_layout
+   *   The Layout Paragraphs Layout object.
+   * @param string $component_uuid
+   *   The component UUID.
+   *
+   * @return \Psr\Http\Message\ResponseInterface
+   *   The response.
+   */
+  public function reorderRegions(Request $request, LayoutParagraphsLayout $layout_paragraphs_layout, string $component_uuid) {
+    $component = $layout_paragraphs_layout->getComponentByUuid($component_uuid);
+    $paragraph = $component->getEntity();
+    $behavior_settings = $paragraph->getAllBehaviorSettings();
+    $order = Json::decode($request->request->get('order'));
+    if (!empty($behavior_settings['layout_paragraphs']['config']['layout_regions']) && !empty($order)) {
+      $layout_regions = $behavior_settings['layout_paragraphs']['config']['layout_regions'];
+      $reordered_regions = [];
+      foreach ($order as $region_id) {
+        if (!empty($layout_regions[$region_id])) {
+          $reordered_regions[$region_id] = $layout_regions[$region_id];
+        }
+      }
+      $behavior_settings['layout_paragraphs']['config']['layout_regions'] = $reordered_regions;
+      $paragraph->setAllBehaviorSettings($behavior_settings);
+      $paragraph->setNeedsSave(TRUE);
+      $layout_paragraphs_layout->setComponent($paragraph);
+      $this->tempstore->set($layout_paragraphs_layout);
+
+      $this->setLayoutParagraphsLayout($layout_paragraphs_layout);
+      $response = new AjaxResponse();
+      if ($this->needsRefresh()) {
+        return $this->refreshLayout($response);
+      }
+      $rendered_item = [
+        '#type' => 'layout_paragraphs_builder',
+        '#layout_paragraphs_layout' => $this->layoutParagraphsLayout,
+        '#uuid' => $component_uuid,
+      ];
+      $response->addCommand(new ReplaceCommand("[data-uuid={$component_uuid}]", $rendered_item));
+      $response->addCommand(new LayoutParagraphsEventCommand($this->layoutParagraphsLayout, $component_uuid, 'component:update'));
+      return $response;
+    }
+    return new AjaxResponse();
   }
 
 }

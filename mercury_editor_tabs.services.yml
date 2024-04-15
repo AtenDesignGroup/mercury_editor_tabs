@@ -1,5 +1,0 @@
-# services:
-#   mercury_editor_tabs_component_menu_subscriber:
-#     class: \Drupal\mercury_editor_tabs\EventSubscriber\ComponentMenuSubscriber
-#     tags:
-#       - { name: 'event_subscriber' }

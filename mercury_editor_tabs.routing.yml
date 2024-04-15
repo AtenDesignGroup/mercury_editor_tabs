@@ -1,8 +1,8 @@
 
-mercury_editor_tabs.edit_title:
-  path: '/mercury-editor-tabs/{layout_paragraphs_layout}/edit-title/{component_uuid}/{tab_id}'
+mercury_editor_tabs.edit_label:
+  path: '/mercury-editor-tabs/{layout_paragraphs_layout}/edit-title/{component_uuid}/{region_id}'
   defaults:
-    _controller: '\Drupal\mercury_editor_tabs\Controller\TabsController::editTabTitle'
+    _controller: '\Drupal\mercury_editor_tabs\Controller\EditLayoutController::editLabel'
   options:
     parameters:
       layout_paragraphs_layout:
@@ -10,10 +10,10 @@ mercury_editor_tabs.edit_title:
   requirements:
     _layout_paragraphs_builder_access: 'TRUE'
 
-mercury_editor_tabs.remove_tab:
-  path: '/mercury-editor-tabs/{layout_paragraphs_layout}/remove-tab/{component_uuid}/{tab_id}'
+mercury_editor_tabs.remove_region:
+  path: '/mercury-editor-tabs/{layout_paragraphs_layout}/remove-tab/{component_uuid}/{region_id}'
   defaults:
-    _controller: '\Drupal\mercury_editor_tabs\Controller\TabsController::removeTab'
+    _controller: '\Drupal\mercury_editor_tabs\Controller\EditLayoutController::removeRegion'
   options:
     parameters:
       layout_paragraphs_layout:
@@ -21,10 +21,10 @@ mercury_editor_tabs.remove_tab:
   requirements:
     _layout_paragraphs_builder_access: 'TRUE'
 
-mercury_editor_tabs.add_tab:
-  path: '/mercury-editor-tabs/{layout_paragraphs_layout}/add-tab/{component_uuid}'
+mercury_editor_tabs.add_region:
+  path: '/mercury-editor-tabs/{layout_paragraphs_layout}/add-region/{component_uuid}'
   defaults:
-    _controller: '\Drupal\mercury_editor_tabs\Controller\TabsController::addTab'
+    _controller: '\Drupal\mercury_editor_tabs\Controller\EditLayoutController::addRegion'
   options:
     parameters:
       layout_paragraphs_layout:
@@ -32,10 +32,10 @@ mercury_editor_tabs.add_tab:
   requirements:
     _layout_paragraphs_builder_access: 'TRUE'
 
-mercury_editor_tabs.reorder_tabs:
+mercury_editor_tabs.reorder_regions:
   path: '/mercury-editor-tabs/{layout_paragraphs_layout}/reorder/{component_uuid}'
   defaults:
-    _controller: '\Drupal\mercury_editor_tabs\Controller\TabsController::reorderTabs'
+    _controller: '\Drupal\mercury_editor_tabs\Controller\EditLayoutController::reorderRegions'
   options:
     parameters:
       layout_paragraphs_layout:

@@ -1,43 +1,41 @@
-tabs:
+me_tabs:
   label: 'Tabs'
-  template: templates/tabs
+  template: templates/me-tabs
   class: '\Drupal\mercury_editor_tabs\Plugin\Layout\Tabs'
-  category: 'Tabs / Accordions'
+  category: 'Accordions / Tabs'
   library: mercury_editor_tabs/layout
-  default_region: tab1
+  default_region: region_1
   icon_map:
-    - [tab1, tab2, tab3]
-    - [tab1_content]
-    - [tab1_content]
-    - [tab1_content]
-    - [tab1_content]
-    - [tab1_content]
+    - [region_1, region_2, region_3]
+    - [region_1_content]
+    - [region_1_content]
+    - [region_1_content]
+    - [region_1_content]
+    - [region_1_content]
   regions:
-    title:
-      label: Title
-    tab1:
+    region_1:
       label: Tab 1
-    tab2:
+    region_2:
       label: Tab 2
 
 me_accordion:
   label: 'Accordion'
   template: templates/me-accordion
-  class: '\Drupal\mercury_editor_tabs\Plugin\Layout\Tabs'
-  category: 'Tabs / Accordions'
+  class: '\Drupal\mercury_editor_tabs\Plugin\Layout\Accordion'
+  category: 'Accordions / Tabs'
   library: mercury_editor_tabs/layout
-  default_region: tab1
+  default_region: region_1
   icon_map:
-    - [tab1_content]
-    - [tab2_content]
-    - [tab2_content]
-    - [tab3_content]
-    - [tab4_content]
-    - [tab4_content]
+    - [region_1_content]
+    - [region_2_content]
+    - [region_2_content]
+    - [region_3_content]
+    - [region_4_content]
+    - [region_4_content]
   regions:
     title:
       label: Title
-    tab1:
-      label: Tab 1
-    tab2:
-      label: Tab 2
+    region_1:
+      label: Accordion Item 1
+    region_2:
+      label: Accordion Item 2

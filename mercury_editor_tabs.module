@@ -1,51 +1,36 @@
 <?php
 
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Template\Attribute;
 use Drupal\layout_paragraphs\LayoutParagraphsSection;
-use Drupal\paragraphs\Entity\Paragraph;
 
 /**
  * Implements hook_preprocess_hook().
  */
-function mercury_editor_tabs_preprocess_tabs(&$vars) {
-  $tabs = [];
-  $labels = $vars['layout']->getRegions();
-  $settings = $vars['settings'];
-  if (!empty($settings['layout_paragraphs_section'])) {
-    /** @var LayoutParagraphsSection */
-    $layout_section = $settings['layout_paragraphs_section'];
-    $paragraph = $layout_section->getEntity();
-    if ($paragraph->access('update')) {
-      $vars['#attached']['library'][] = 'mercury_editor_tabs/editor_ui';
-    }
+function mercury_editor_tabs_preprocess_me_tabs(&$vars) {
+  _mercury_editor_tabs_build_layout_regions($vars);
+  foreach ($vars['layout_regions'] as $region_id => $region) {
+    $vars['layout_regions'][$region_id]['title_attributes']->setAttribute('data-me-accordion-tabs-draggable', $region_id);
   }
-  foreach (Element::children($vars['content']) as $region) {
-    $label = $settings['tabs'][$region]['detail']['label'];
-    $tabs[$region] = [
-      'id' => $region,
-      'title' => $label,
-      'title_attributes' => new Attribute([
-        'data-region' => $region,
-      ]),
-      'content' => $vars['content'][$region],
-      'region' => $region,
-      'attributes' => $vars['region_attributes'][$region],
-    ];
-  }
-  $vars['tabs'] = $tabs;
-  // $vars['#attached']['library'][] = 'yourmodule/layout_tabs';
 }
-
 
 /**
  * Implements hook_preprocess_hook().
  */
 function mercury_editor_tabs_preprocess_me_accordion(&$vars) {
-  $tabs = [];
-  $labels = $vars['layout']->getRegions();
+  _mercury_editor_tabs_build_layout_regions($vars);
+  foreach ($vars['layout_regions'] as $region_id => $region) {
+    $vars['layout_regions'][$region_id]['attributes']->setAttribute('data-me-accordion-tabs-draggable', $region_id);
+  }
+}
+
+/**
+ * Builds the layout region variables for tabs and accordions.
+ */
+function _mercury_editor_tabs_build_layout_regions(&$vars) {
+  $vars['layout_regions'] = [];
   $settings = $vars['settings'];
+  // Attach the builder UI if the user has access to edit the paragraph.
   if (!empty($settings['layout_paragraphs_section'])) {
     /** @var LayoutParagraphsSection */
     $layout_section = $settings['layout_paragraphs_section'];
@@ -54,19 +39,23 @@ function mercury_editor_tabs_preprocess_me_accordion(&$vars) {
       $vars['#attached']['library'][] = 'mercury_editor_tabs/editor_ui';
     }
   }
-  foreach (Element::children($vars['content']) as $region) {
-    $label = $settings['tabs'][$region]['detail']['label'];
-    $tabs[$region] = [
-      'id' => $region,
-      'title' => $label,
+  $vars['label_group_attributes'] = new Attribute([
+    'data-me-accordion-tabs-label-group' => 'true',
+  ]);
+  foreach (Element::children($vars['content']) as $region_id) {
+    $vars['layout_regions'][$region_id] = [
+      'id' => $region_id,
+      'title' => $settings['layout_regions'][$region_id]['label'],
       'title_attributes' => new Attribute([
-        'data-region' => $region,
+        'data-region-label' => $region_id,
+        'data-me-accordion-tabs-region-label' => $region_id,
       ]),
-      'content' => $vars['content'][$region],
-      'region' => $region,
-      'attributes' => $vars['region_attributes'][$region],
+      'content' => $vars['content'][$region_id],
+      'region' => $region_id,
+      'attributes' => new Attribute([
+        'data-me-region' => $region_id,
+      ]),
+      'content_attributes' => $vars['region_attributes'][$region_id],
     ];
   }
-  $vars['tabs'] = $tabs;
-  // $vars['#attached']['library'][] = 'yourmodule/layout_tabs';
 }
